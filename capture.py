@@ -282,8 +282,7 @@ class SEURAT_OT_capture_data(bpy.types.Operator):
                             'path': color_image_path,
                             'channel_0': 'R',
                             'channel_1': 'G',
-                            'channel_2': 'B',
-                            'channel_alpha': 'A'
+                            'channel_2': 'B'
                         },
                         'depth': {
                             'path': depth_image_path,
