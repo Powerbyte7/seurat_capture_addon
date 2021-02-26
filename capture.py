@@ -3,6 +3,7 @@ import os
 import json
 import operator
 from . import math_functions
+from mathutils import Vector
 
 
 class SEURAT_OT_create_capture_box(bpy.types.Operator):
@@ -66,6 +67,12 @@ class SEURAT_OT_capture_data(bpy.types.Operator):
         headbox_max = [-capture_box_scale[0] + capture_box_location[0], -capture_box_scale[1] +
                        capture_box_location[1], -capture_box_scale[2] + capture_box_location[2]]
 
+
+        # Check if the capturing box intersects with any meshes
+        # Capturing will be aborted if there are any intersections
+        if self.check_for_intersections(context, capture_box_location, capture_box_scale):
+            return {'CANCELLED'}
+
         # Calculate the camera positions used for capturing
         view_groups = int(opt.view_groups)
 
@@ -124,6 +131,77 @@ class SEURAT_OT_capture_data(bpy.types.Operator):
             json_file.write(json_string)
 
         return {'FINISHED'}
+
+    def check_for_intersections(self, context, capture_box_location, capture_box_scale):
+        
+
+        loc = capture_box_location
+        sca = capture_box_scale
+
+        # Rays used for the check
+        # TODO: Use code to generate list instead
+
+        rays = [
+            [loc, (loc[0] + sca[0],
+                   loc[1], loc[2])],
+            [loc, (loc[0] - sca[0],
+                   loc[1], loc[2])],
+            [loc, (loc[0], loc[1] +
+                   sca[1], loc[2])],
+            [loc, (loc[0], loc[1] -
+                   sca[1], loc[2])],
+            [loc, (loc[0], loc[1],
+                   loc[2] + sca[2])],
+            [loc, (loc[0], loc[1], loc[2] - sca[2])], 
+
+            [(loc[0] - sca[0], loc[1] - sca[1], loc[2] - sca[2]),
+             (loc[0] - sca[0], loc[1] - sca[1], loc[2] + sca[2])],
+            [(loc[0] + sca[0], loc[1] - sca[1], loc[2] - sca[2]),
+             (loc[0] + sca[0], loc[1] - sca[1], loc[2] + sca[2])],
+            [(loc[0] - sca[0], loc[1] + sca[1], loc[2] - sca[2]),
+             (loc[0] - sca[0], loc[1] + sca[1], loc[2] + sca[2])],
+            [(loc[0] + sca[0], loc[1] + sca[1], loc[2] - sca[2]),
+             (loc[0] + sca[0], loc[1] + sca[1], loc[2] + sca[2])],
+
+            [(loc[0] - sca[0], loc[1] - sca[1], loc[2] - sca[2]),
+             (loc[0] + sca[0], loc[1] - sca[1], loc[2] - sca[2])],
+            [(loc[0] - sca[0], loc[1] + sca[1], loc[2] - sca[2]),
+             (loc[0] + sca[0], loc[1] + sca[1], loc[2] - sca[2])],
+            [(loc[0] + sca[0], loc[1] + sca[1], loc[2] - sca[2]),
+             (loc[0] + sca[0], loc[1] - sca[1], loc[2] - sca[2])],
+            [(loc[0] + sca[0], loc[1] - sca[1], loc[2] - sca[2]),
+             (loc[0] + sca[0], loc[1] + sca[1], loc[2] - sca[2])],
+
+            [(loc[0] - sca[0], loc[1] - sca[1], loc[2] + sca[2]),
+             (loc[0] + sca[0], loc[1] - sca[1], loc[2] + sca[2])],
+            [(loc[0] - sca[0], loc[1] + sca[1], loc[2] + sca[2]),
+             (loc[0] + sca[0], loc[1] + sca[1], loc[2] + sca[2])],
+            [(loc[0] + sca[0], loc[1] + sca[1], loc[2] + sca[2]),
+             (loc[0] + sca[0], loc[1] - sca[1], loc[2] + sca[2])],
+            [(loc[0] + sca[0], loc[1] - sca[1], loc[2] + sca[2]), 
+            (loc[0] + sca[0], loc[1] + sca[1], loc[2] + sca[2])]
+            
+        ]
+        
+        # Loop through all of the rays
+        for ray in rays:
+            a = Vector(ray[0])
+            b = Vector(ray[1])
+
+            hit, loc, norm, idx, ob, M = context.scene.ray_cast(
+                context.evaluated_depsgraph_get(),
+                a,
+                (b - a),
+                distance=(b - a).length,
+            )
+            
+            if hit:
+                self.report({'ERROR'}, f"Capturing box intersects with mesh ({ob.name}), make sure the capturing box doesn't intersect with any geometry")
+                return True
+
+        # Finish
+        print("No mesh intersections found, continuing")
+        return False
 
     def compositor_setup(self, context, output_path):
         # Switch on nodes and get reference
