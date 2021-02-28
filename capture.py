@@ -245,6 +245,7 @@ class SEURAT_OT_capture_data(bpy.types.Operator):
         context.scene.render.resolution_x = image_resolution
         context.scene.render.resolution_y = image_resolution
         context.scene.render.resolution_percentage = 100
+        context.scene.render.image_settings.color_mode = 'RGBA'
 
         if context.scene.render.engine == 'BLENDER_EEVEE':
             context.scene.eevee.use_overscan = True
@@ -302,14 +303,14 @@ class SEURAT_OT_capture_data(bpy.types.Operator):
         absolute_output_path = bpy.path.abspath(output_path)
 
         # Create absolute paths to the current render results
-        color_path = absolute_output_path + "color" + str(frame) + ".exr"
-        depth_path = absolute_output_path + "depth" + str(frame) + ".exr"
+        color_path = os.path.join(absolute_output_path + "color" + str(frame) + ".exr")
+        depth_path = os.path.join(absolute_output_path + "depth" + str(frame) + ".exr")
 
         # Create absolute paths to the wanted render results
-        color_file_name = absolute_output_path + \
-            face + "_color." + str(view).zfill(4) + ".exr"
-        depth_file_name = absolute_output_path + \
-            face + "_depth." + str(view).zfill(4) + ".exr"
+        color_file_name = os.path.join(absolute_output_path +
+                                        face + "_color." + str(view).zfill(4) + ".exr")
+        depth_file_name = os.path.join(absolute_output_path +
+                                        face + "_depth." + str(view).zfill(4) + ".exr")
 
         # Rename the color image
         try:
@@ -360,7 +361,8 @@ class SEURAT_OT_capture_data(bpy.types.Operator):
                             'path': color_image_path,
                             'channel_0': 'R',
                             'channel_1': 'G',
-                            'channel_2': 'B'
+                            'channel_2': 'B',
+                            'channel_alpha': 'A'
                         },
                         'depth': {
                             'path': depth_image_path,
