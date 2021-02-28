@@ -2,7 +2,7 @@ bl_info = {  # noqa
     'name': 'Seurat Capture for Blender',
     'author': 'Digified',
     'description': 'Addon to capture data for use with Google Seurat',
-    'version': (1, 1, 0),
+    'version': (1, 1, 1,
     'blender': (2, 90, 1),
     'location': 'View3D',
     'category': 'Render'
