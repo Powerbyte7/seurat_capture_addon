@@ -20,8 +20,8 @@ class SEURAT_OT_process_data(bpy.types.Operator):
 
         output_directory = bpy.path.abspath(opt.mesh_output_path)
 
-        input_path = bpy.path.abspath(opt.capture_output_path) + "manifest.json"
-        output_path = bpy.path.abspath(opt.mesh_output_path) + "output"
+        input_path = bpy.path.abspath(os.path.join(opt.capture_output_path + "manifest.json"))
+        output_path = bpy.path.abspath(os.path.join(opt.mesh_output_path + "output"))
 
         if not os.path.exists(output_directory):
             try:
@@ -40,7 +40,7 @@ class SEURAT_OT_process_data(bpy.types.Operator):
         options = opt.seurat_command_flags
         # Default is "-texture_width 8192 -texture_height 8192 -pixels_per_degree 20 -triangle_count 180000"
 
-        cmd = directory + "\seurat-pipeline-msvc2017-x64.exe -input_path " + input_path + " -output_path " + output_path + " " + options
+        cmd = os.path.join(directory + "\seurat-pipeline-msvc2017-x64.exe -input_path ") + "\"" + input_path + "\" -output_path \"" + output_path + "\" " + options
 
         print(cmd)
 
