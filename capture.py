@@ -188,12 +188,20 @@ class SEURAT_OT_capture_data(bpy.types.Operator):
             a = Vector(ray[0])
             b = Vector(ray[1])
 
-            hit, loc, norm, idx, ob, M = context.scene.ray_cast(
-                context.evaluated_depsgraph_get(),
-                a,
-                (b - a),
-                distance=(b - a).length,
-            )
+            if (2, 90, 0) < bpy.app.version:
+                hit, loc, norm, idx, ob, M = context.scene.ray_cast(
+                    context.view_layer.depsgraph,
+                    a,
+                    (b - a),
+                    distance=(b - a).length,
+                )
+            else:
+                hit, loc, norm, idx, ob, M = context.scene.ray_cast(
+                    context.view_layer,
+                    a,
+                    (b - a),
+                    distance=(b - a).length,
+                )
             
             if hit:
                 self.report({'ERROR'}, f"Capturing box intersects with mesh ({ob.name}), make sure the capturing box doesn't intersect with any geometry")
