@@ -21,7 +21,7 @@ class SEURAT_OT_create_capture_box(bpy.types.Operator):
             print("Seurat capture box already present inside scene")
             return {'CANCELLED'}
 
-        # Create empty to server as capture box
+        # Create empty to serve as capture box
         seurat_capture_box = bpy.data.objects.new("SeuratCaptureBox", None)
 
         # Change empty display type to cube
@@ -139,8 +139,6 @@ class SEURAT_OT_capture_data(bpy.types.Operator):
         sca = capture_box_scale
 
         # Rays used for the check
-        # TODO: Use code to generate list instead
-
         rays = [
             [loc, (loc[0] + sca[0],
                    loc[1], loc[2])],
@@ -250,11 +248,14 @@ class SEURAT_OT_capture_data(bpy.types.Operator):
             render_layers_node.outputs[2], file_output_node.inputs[2])
 
     def render_preparation(self, context, image_resolution):
+        # Make sure that renders are in the correct format before capturing
+        context.view_layer.use_pass_z = True
         context.scene.render.resolution_x = image_resolution
         context.scene.render.resolution_y = image_resolution
         context.scene.render.resolution_percentage = 100
         context.scene.render.image_settings.color_mode = 'RGBA'
 
+        # Use overscan to decrease artifacts from screenspace rendering
         if context.scene.render.engine == 'BLENDER_EEVEE':
             context.scene.eevee.use_overscan = True
             context.scene.eevee.overscan_size = 10.0
