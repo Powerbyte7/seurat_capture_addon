@@ -2,8 +2,8 @@ bl_info = {  # noqa
     'name': 'Seurat Capture for Blender',
     'author': 'Digified',
     'description': 'Addon to capture data for use with Google Seurat',
-    'version': (1, 1, 3),
-    'blender': (2, 90, 1),
+    'version': (1, 1, 4),
+    'blender': (3, 1, 2),
     'location': 'View3D',
     'category': 'Render'
 }  # noqa
@@ -13,8 +13,6 @@ bl_info = {  # noqa
 import bpy  # noqa
 
 # Global properties used in the addon, they are configurable in the UI
-
-
 class SeuratOptionsPropertyGroup(bpy.types.PropertyGroup):
 
     view_groups: bpy.props.EnumProperty(
